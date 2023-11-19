@@ -1,1 +1,17 @@
-<div w3-include-html="viewer.html"></div>
+<div style='overflow:scroll; width:400px;height:400px;position:absolute;left:300px;border:1px solid black'
+    onscroll="onScroll(this,'hello')">
+    <canvas id="waveform_window" width="1000" height="1000" style="border:0px solid #19077a;" overflow:auto>
+        Unsupported browser.
+    </canvas>
+
+    <script src="viewer.js"></script>
+
+    <script type="text/javascript">
+        drawWaveformWindow("waveform_window");
+    </script>
+</div>
+<div style='width:180px;height:400px;position:absolute;left:100px;border:1px solid black;overflow:hidden'>
+    <div id="hello" style='width:160px;height:20px;position:absolute;left:10px;top:400px;border:1px solid black'>
+        hello
+    </div>
+</div>
