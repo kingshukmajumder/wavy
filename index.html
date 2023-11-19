@@ -1,14 +1,16 @@
 <script src="state.js"></script>
 <script>
     state = new State()
+    state.nameWndwID = 'name_wndw'
+    state.waveWndwID = 'wave_wndw'
 </script>
 <script src="viewer.js"></script>
 
 <div id="top" hidden>
     <div style='overflow:scroll; width:400px;height:400px;position:absolute;left:300px;border:1px solid black'
-        onscroll="onScroll(this,'name_wndw')">
-        <canvas id="waveform_window" width="1000px" height="1000px"
-            style="background-color:black; border:0px solid #19077a;" overflow:auto>
+        onscroll="onScroll(this,state)">
+        <canvas id="wave_wndw" width="1000px" height="1000px" style="background-color:black; border:0px solid #19077a;"
+            overflow:auto>
             Unsupported browser.
         </canvas>
     </div>
@@ -19,8 +21,17 @@
         </div>
     </div>
 
-    <div>
-        <button onclick="loadWaveform('waveform_window','name_wndw',state)" class="favorite styled">Open</button>
+    <div style='position:absolute;top:450px;left:300px'>
+        <label for="vcd_file">VCD file</label>
+        <input type="file" id="vcd_file" name="vcd_file" accept='.json' onclick="this.value=null"
+            onchange="loadVCDFromFile(this,state)" />
+    </div>
+
+    <div style='position:absolute;top:500px;left:300px'>
+        <label for="vcd_url">VCD URL</label>
+        <input type="url" id="vcd_url" name="vcd_url" accept='.json' onclick="this.value=null"
+            onchange="loadVCDFromURL(this,state)" />
+        <label hidden id="url_error">Bad URL.</label>
     </div>
 </div>
 

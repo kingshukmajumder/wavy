@@ -8,6 +8,10 @@ class State {
     constructor() {
         this.waves = []
     }
+    clear() {
+        this.waves = []
+    }
+
     addWaveform(waveform) {
         this.waves.push(waveform);
     }
