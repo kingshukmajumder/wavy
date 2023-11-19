@@ -1,17 +1,24 @@
+<script src="state.js"></script>
+<script>
+    state = new State()
+</script>
+
+<script src="viewer.js"></script>
+
 <div style='overflow:scroll; width:400px;height:400px;position:absolute;left:300px;border:1px solid black'
-    onscroll="onScroll(this,'hello')">
-    <canvas id="waveform_window" width="1000" height="1000" style="border:0px solid #19077a;" overflow:auto>
+    onscroll="onScroll(this,'name_wndw')">
+    <canvas id="waveform_window" width="1000px" height="1000px"
+        style="background-color:black; border:0px solid #19077a;" overflow:auto>
         Unsupported browser.
     </canvas>
-
-    <script src="viewer.js"></script>
-
-    <script type="text/javascript">
-        drawWaveformWindow("waveform_window");
-    </script>
 </div>
+
 <div style='width:180px;height:400px;position:absolute;left:100px;border:1px solid black;overflow:hidden'>
-    <div id="hello" style='width:160px;height:20px;position:absolute;left:10px;top:400px;border:1px solid black'>
-        hello
+    <div id="name_wndw"
+        style='background-color:grey;width:180px;height:1000px;position:absolute;border:0px solid black'>
     </div>
+</div>
+
+<div>
+    <button onclick="loadWaveform('waveform_window','name_wndw',state)" class="favorite styled">Open</button>
 </div>
