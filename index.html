@@ -2,23 +2,56 @@
 <script>
     state = new State()
 </script>
-
 <script src="viewer.js"></script>
 
-<div style='overflow:scroll; width:400px;height:400px;position:absolute;left:300px;border:1px solid black'
-    onscroll="onScroll(this,'name_wndw')">
-    <canvas id="waveform_window" width="1000px" height="1000px"
-        style="background-color:black; border:0px solid #19077a;" overflow:auto>
-        Unsupported browser.
-    </canvas>
-</div>
+<div id="top" hidden>
+    <div style='overflow:scroll; width:400px;height:400px;position:absolute;left:300px;border:1px solid black'
+        onscroll="onScroll(this,'name_wndw')">
+        <canvas id="waveform_window" width="1000px" height="1000px"
+            style="background-color:black; border:0px solid #19077a;" overflow:auto>
+            Unsupported browser.
+        </canvas>
+    </div>
 
-<div style='width:180px;height:400px;position:absolute;left:100px;border:1px solid black;overflow:hidden'>
-    <div id="name_wndw"
-        style='background-color:grey;width:180px;height:1000px;position:absolute;border:0px solid black'>
+    <div style='width:180px;height:400px;position:absolute;left:100px;border:1px solid black;overflow:hidden'>
+        <div id="name_wndw"
+            style='background-color:grey;width:180px;height:1000px;position:absolute;border:0px solid black'>
+        </div>
+    </div>
+
+    <div>
+        <button onclick="loadWaveform('waveform_window','name_wndw',state)" class="favorite styled">Open</button>
     </div>
 </div>
 
-<div>
-    <button onclick="loadWaveform('waveform_window','name_wndw',state)" class="favorite styled">Open</button>
+<div id="mobile_screen" hidden>
+    Mobile not supported.
 </div>
+
+<script>
+    const isMobile = {
+        Android: function () {
+            return navigator.userAgent.match(/Android/i);
+        },
+        BlackBerry: function () {
+            return navigator.userAgent.match(/BlackBerry/i);
+        },
+        iOS: function () {
+            return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        Opera: function () {
+            return navigator.userAgent.match(/Opera Mini/i);
+        },
+        Windows: function () {
+            return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+        },
+        any: function () {
+            return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+        }
+    };
+    if (isMobile.any()) {
+        document.getElementById('mobile_screen').hidden = false
+    } else {
+        document.getElementById('top').hidden = false
+    }
+</script>
