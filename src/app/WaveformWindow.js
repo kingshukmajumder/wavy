@@ -1,28 +1,10 @@
 import React from 'react';
 import { ScrollSync, ScrollSyncPane } from 'react-scroll-sync';
 import PropTypes from 'prop-types';
-import { createElement } from 'react';
 
-function drawBinaryWave(ctx, x, y, values) {
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    let prev = 0
-    for (let i = 0; i < values.length; i++) {
-        let val = values[i];
-        if (prev == 1 && val == 0) {
-            y = y + 20;
-            ctx.lineTo(x, y);
-        } else if (prev == 0 && val == 1) {
-            y = y - 20;
-            ctx.lineTo(x, y)
-        }
-        x += 20
-        ctx.lineTo(x, y);
-        prev = val
-    }
-    ctx.strokeStyle = 'green'
-    ctx.stroke();
-}
+//TODO: 
+// Merge drawBinaryWave with drawIntegerWave. 
+// Only the drawValue function should be different. 
 export default class WaveformWindow extends React.Component {
     constructor(props) {
         super(props)
@@ -30,6 +12,7 @@ export default class WaveformWindow extends React.Component {
             scrollTop: 0,
         }
         this.canvasRef = React.createRef();
+        this.canvasOuterRef = React.createRef();
         this.nameRef = React.createRef();
         this.names = [];
         this.redrawn = false;
@@ -71,7 +54,64 @@ export default class WaveformWindow extends React.Component {
             position: "absolute",
             border: "0px solid black"
         }
+        this.value_lbls = [];
     }
+    drawBinaryWave(ctx, x, y, values) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        let prev = 0
+        for (let i = 0; i < values.length; i++) {
+            let val = values[i];
+            if (val > 1)
+                throw new Error('Not a binary wave.');
+            if (prev == 1 && val == 0) {
+                y = y + 20;
+                ctx.lineTo(x, y);
+            } else if (prev == 0 && val == 1) {
+                y = y - 20;
+                ctx.lineTo(x, y)
+            }
+            x += 20
+            ctx.lineTo(x, y);
+            prev = val
+        }
+        ctx.strokeStyle = 'green'
+        ctx.stroke();
+    }
+
+    drawValue(ctx, val, reps, x, y) {
+        y = y - 10;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 3, y - 10);
+        ctx.lineTo(x + 17 + reps * 20, y - 10);
+        ctx.lineTo(x + (reps + 1) * 20, y);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 3, y + 10);
+        ctx.lineTo(x + 17 + reps * 20, y + 10);
+        ctx.lineTo(x + (reps + 1) * 20, y);
+        const e = document.createElement('label')
+        const textwidth = 14 + reps * 20;
+        e.style = `color:white;position:absolute; left:${x + 3}px; top:${y - 10}px; width:${textwidth}px;overflow:hidden; text-align:center`
+        e.innerHTML = `${val.toString(2)}`;
+        ctx.outerRef.current.prepend(e);
+        this.value_lbls.push(e);
+    }
+
+    drawIntegerWave(ctx, x, y, values) {
+        ctx.beginPath();
+        for (let i = 0; i < values.length; i++) {
+            let val = values[i];
+            let reps = 0
+            while ((i + reps + 1 < values.length) && values[i + reps + 1] == val) {
+                reps += 1
+            }
+            this.drawValue(ctx, val, reps, x + 20 * i, y);
+            i = i + reps
+        }
+        ctx.strokeStyle = 'green'
+        ctx.stroke();
+    }
+
 
     drawWaveformWindow() {
         const canvas = this.canvasRef.current;
@@ -80,10 +120,18 @@ export default class WaveformWindow extends React.Component {
         console.log('canvas redrawn.');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        for (let i = 0; i < this.props.waves.length; i++) {
-            let wave = this.props.waves[i].values;
-            drawBinaryWave(ctx, 0, 30 + i * 50, wave)
+        for (let i = 0; i < this.value_lbls.length; i++) {
+            this.value_lbls[i].remove();
         }
+        ctx.outerRef = this.canvasOuterRef;
+        for (let i = 0; i < this.props.waves.length; i++) {
+            let wave = this.props.waves[i];
+            if (wave.width == 1)
+                this.drawBinaryWave(ctx, 0, 30 + i * 50, wave.values)
+            else
+                this.drawIntegerWave(ctx, 0, 30 + i * 50, wave.values)
+        }
+
     }
 
     componentDidUpdate() {
@@ -116,7 +164,7 @@ export default class WaveformWindow extends React.Component {
         return <ScrollSync><div style={this.style} >
             <ScrollSyncPane>
                 < div style={this.wave_wndw_style} >
-                    < Canvas canvasRef={this.canvasRef} />
+                    < Canvas canvasRef={this.canvasRef} outerRef={this.canvasOuterRef} />
                 </div >
             </ScrollSyncPane>
             <ScrollSyncPane>
@@ -132,14 +180,15 @@ export default class WaveformWindow extends React.Component {
     }
 }
 
-const Canvas = React.memo((props) => {
+function Canvas(props) {
     console.log(`Canvas rendered.`)
-
-    return <canvas width="10000px" height="1000px"
-        overflow='auto' ref={props.canvasRef}>
-        Unsupported browser.
-    </canvas>
-});
+    return <div ref={props.outerRef}>
+        <canvas width="20000px" height="1000px"
+            overflow='auto' ref={props.canvasRef}>
+            Unsupported browser.
+        </canvas>
+    </div>
+};
 
 WaveformWindow.propTypes = {
     width: PropTypes.number.isRequired,
@@ -165,15 +214,16 @@ function getDefaultWaves({ ncycles, nwaves }) {
             rst.push(0);
         }
     }
-    let waves = [{ name: 'clk', values: clk }, { name: 'rst', values: rst }]
+    let waves = [{ name: 'clk', values: clk, width: 1 }, { name: 'rst', values: rst, width: 1 }]
     for (let n = 0; n < nwaves; n++) {
         let wave = []
+        const width = n % 5 + 1
         for (let i = 0; i < ncycles; i++) {
-            const v = Math.round(Math.random());
+            const v = Math.round((2 ** width - 1) * Math.random());
             wave.push(v);
             wave.push(v);
         }
-        waves.push({ name: `wave${n}`, values: wave })
+        waves.push({ name: `wave${n}`, values: wave, width: width })
     }
 
     return waves;
@@ -183,8 +233,8 @@ function getDefaultWaves({ ncycles, nwaves }) {
 WaveformWindow.defaultProps = {
     width: 1400,
     height: 600,
-    left: 20,
-    top: 20,
-    waves: getDefaultWaves({ ncycles: 249, nwaves: 16 }),
+    left: 10,
+    top: 40,
+    waves: getDefaultWaves({ ncycles: 249 * 2, nwaves: 17 }),
 }
 
