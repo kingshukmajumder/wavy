@@ -30,7 +30,6 @@ function parseHeader(text) {
         if (text.startsWith('$date')) {
             header.date, text = parseDate(text);
         }
-        if (text.startsWith)
     }
     return header;
 }
