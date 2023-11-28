@@ -1,7 +1,7 @@
 //PEG grammar for VCD file header (till enddefinitions).
 
-top = date:date? _ version:version? _ comment: (comment?) _ timescale:timescale _ scopes:scopeBody _ enddefinitions _
-{ return { date: date, version: version, comment, timescale: timescale, scopes: scopes };}
+top = date:date? _ version:version? _ comment: (comment?) _ timescale:timescale _ body:scopeBody _ enddefinitions _
+{ return { date: date, version: version, comment, timescale: timescale, scopes: body.scopes };}
 
 date = '$date' _ body:text _ '$end'  { return body; }
 
@@ -17,12 +17,28 @@ scopeEnd = '$upscope' _ '$end' { return }
 var = '$var' _ type:type _ width:num _ ref:word _ name:word _ range:range? _ '$end' _ 
 { return { kind:'var',width:width,name:name, type:type,range:range };} 
 
-varOrScope = v: (var/scope/comment) _ {return v;}
-
-scopeBody = varOrScope* 
+scopeBody = v:((var/scope/comment) _)* {
+	let vars=[];
+    let scopes=[];
+    let all = [];
+    
+    function group(item){
+       	item = item[0];
+    	if(item.kind == 'var'){
+            delete item.kind;
+        	vars.push(item);
+        }
+        else if(item.kind=='scope'){
+        	delete item.kind;
+            scopes.push(item);
+        }
+    }
+	v.forEach(group);
+    return {vars,scopes};
+} 
 
 scope = info:scopeBegin _ body:scopeBody _ scopeEnd 
-{ return { kind: 'scope', type: info.type, name:info.name, children: body }; }
+{ return { kind: 'scope', type: info.type, name:info.name, scopes: body.scopes,vars:body.vars }; }
 
 enddefinitions = '$enddefinitions' _ '$end'
 

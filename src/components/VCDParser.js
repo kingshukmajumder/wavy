@@ -1,3 +1,4 @@
+import * as grammer from './vcd_grammer.pegjs'
 function splitAt(text, token) {
     const pos = text.search(token);
     const before = text.slice(0, pos);
@@ -33,7 +34,13 @@ function parseHeader(text) {
     }
     return header;
 }
+
 export function parseVCD(text) {
     text = text.trimStart();
-
+    const regex = /\$enddefinitions *\$end/g
+    regex.test(text);
+    text = text.slice(0, regex.lastIndex);
+    //console.log(text);
+    const p = grammer.parse(text);
+    return p;
 }

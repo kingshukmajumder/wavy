@@ -1,8 +1,8 @@
 import React from 'react';
-import WaveformWindow from './WaveformWindow.js'
-import ContextMenu from './ContextMenu.js';
+import WaveformWindow from './WaveformWindow'
+import ContextMenu from './ContextMenu';
 import { useContextMenu } from "react-contexify";
-import { loadJSONFromFile } from './LoadVCD.js'
+import { loadVCDFromFile } from './VCDReader'
 
 const MENU_ID = "menu-id";
 export default class Wavy extends React.Component {
@@ -21,7 +21,7 @@ export default class Wavy extends React.Component {
 
 function loadData({ id }) {
     if (id == 'open-file') {
-        loadJSONFromFile().then(parsedData => {
+        loadVCDFromFile().then(parsedData => {
             console.log(parsedData);
         });
     }
