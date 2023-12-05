@@ -1,13 +1,11 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Wavy from './components/wavy'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+import Wavy from "./components/wavy";
 
 function App() {
-  return (
-    <Wavy />
-  )
+  return <Wavy />;
 }
 
-export default App
+export default App;

@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "mathjs": "^12.1.0",
     "peggy": "^3.0.2",
     "react": "^18.2.0",
     "react-contexify": "^6.0.0",
